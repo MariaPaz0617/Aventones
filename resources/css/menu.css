@@ -1,0 +1,308 @@
+/* Fondo y tipografía general */
+body {
+  font-family: Arial, sans-serif;
+  background: url("../img/fondo_login.jpg") no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+/* Encabezado */
+.header {
+  background-color: rgba(0, 123, 255, 0.9);
+  color: white;
+  padding: 2px 5px; /* menos alto */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+.perfil-chofer {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* reduce el espacio entre imagen y texto */
+  padding: 5px 15px;
+}
+
+
+.perfil-chofer img {
+  width: 70px;              /* tamaño ajustable */
+  aspect-ratio: 1 / 1;      /* garantiza que ancho = alto */
+  border-radius: 50%;       /* mantiene la forma circular */
+  object-fit: cover;        /* recorta sin deformar */
+  display: block;           /* elimina ajuste por línea base */
+}
+
+
+.modal {
+  display: none;
+  /* ...otros estilos */
+}
+
+/* Botón de cerrar sesión */
+.btn-salir {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-salir:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+/* Secciones */
+.seccion {
+  background: rgba(255, 255, 255, 0.95);
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 900px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.seccion h2 {
+  margin-bottom: 20px;
+  color: #007bff;
+}
+
+
+
+
+.tabla-rides {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabla-rides th,
+.tabla-rides td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.tabla-rides th {
+  background-color: #f0f0f0;
+}
+
+.sin-rides {
+  text-align: center;
+  font-style: italic;
+  margin-top: 10px;
+  color: #666;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background-color: white;
+  margin: 10% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Fuerza el estado de los paneles, por si algún estilo los sobreescribe */
+.panel-oculto { 
+  display: none !important; 
+}
+
+.panel-visible { 
+  display: block !important; 
+  margin-top: 12px;          /* separa el panel de los botones */
+}
+
+
+
+/* Botones de acción */
+.btn-accion {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+.btn-accion:hover {
+  background-color: #218838;
+  transform: scale(1.03);
+}
+
+/* Pie de página */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+
+/* ------------------------Lista de vehículos --------------------------*/
+#listaVehiculos {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Tarjeta de vehículo */
+.vehiculo-card {
+  display: flex;
+  align-items: center;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Imagen del vehículo */
+.vehiculo-card img {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.vehiculo-info {
+  flex-grow: 1;
+}
+
+.vehiculo-info p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.vehiculo-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#campoFoto {
+  display: none;
+}
+
+.btn-editar, .btn-eliminar {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-editar {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: #0056b3;
+}
+
+.btn-eliminar {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: #c82333;
+}
+
+.sin-vehiculos {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  margin-top: 20px;
+}
+
+
+.filtros-busqueda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filtros-busqueda input,
+.filtros-busqueda select {
+  padding: 6px;
+  font-size: 14px;
+}
+
+.ride-card {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+}
+
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabla th, .tabla td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.tabla th {
+  background-color: #f2f2f2;
+}
+
+.tabla tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+
+.btn-salir {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-desactivado {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}

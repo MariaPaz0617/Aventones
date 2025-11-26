@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pasajero - Rides App</title>
+  <link rel="stylesheet" href="../css/menu.css">
+</head>
+<body>
+  <header id="headerPasajero" class="header">
+    <div id="perfilPasajero" class="perfil-chofer"></div>
+    <button id="btnCerrarSesion" class="btn-salir">Cerrar sesión</button>
+  </header>
+
+  <main>
+    <!-- Sección: Buscar Rides -->
+    <section class="seccion">
+      <h2>Buscar Rides</h2>
+      <div class="filtros-busqueda">
+        <input type="text" id="origen" placeholder="Lugar de salida">
+        <input type="text" id="destino" placeholder="Lugar de llegada">
+        <button onclick="filtrarRides()">Buscar</button>
+        <select id="ordenarPor" onchange="ordenarRides()">
+          <option value="fecha">Fecha</option>
+          <option value="lugar_salida">Lugar de salida</option>
+          <option value="lugar_llegada">Lugar de llegada</option>
+        </select>
+        <select id="ordenDireccion" onchange="ordenarRides()">
+          <option value="asc">Ascendente</option>
+          <option value="desc">Descendente</option>
+        </select>
+      </div>
+      <div id="listaRidesPublicos"></div>
+    </section>
+
+    <!-- Sección: Mis Reservas -->
+    <section id="seccionReservas" class="seccion">
+      <h2>Mis Reservas</h2>
+      <table id="tablaReservas" class="tabla">
+        <thead>
+          <tr>
+            <th>Ride</th>
+            <th>Ruta</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+
+    <!-- Perfil del pasajero -->
+  <section class="seccion">
+    <h2>Mi Perfil</h2>
+    <div id="perfilPasajeroPerfil"></div>
+
+    <button class="btn-accion" onclick="mostrarPanel('panelEditarDatos')">Editar datos</button>
+    <button class="btn-accion" onclick="mostrarPanel('panelContrasena')">Cambiar contraseña</button>
+    <button class="btn-accion" onclick="mostrarPanel('panelFoto')">Cambiar fotografía</button>
+
+    <!-- Panel editar datos -->
+    <div id="panelEditarDatos" class="panel-oculto">
+      <span class="cerrar" onclick="ocultarPanel('panelEditarDatos')">&times;</span>
+      <form id="formEditarPasajero">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="text" name="telefono" placeholder="Teléfono" required>
+        <button type="submit" class="btn-accion">Actualizar datos</button>
+      </form>
+    </div>
+
+    <!-- Panel cambiar contraseña -->
+    <div id="panelContrasena" class="panel-oculto">
+      <span class="cerrar" onclick="ocultarPanel('panelContrasena')">&times;</span>
+      <form id="formContrasenaPasajero">
+        <input type="password" name="actual" placeholder="Contraseña actual" required>
+        <input type="password" name="nueva" placeholder="Nueva contraseña" required>
+        <input type="password" name="confirmar" placeholder="Confirmar nueva contraseña" required>
+        <button type="submit" class="btn-accion">Actualizar contraseña</button>
+      </form>
+    </div>
+
+    <!-- Panel cambiar fotografía -->
+    <div id="panelFoto" class="panel-oculto">
+      <span class="cerrar" onclick="ocultarPanel('panelFoto')">&times;</span>
+      <form id="formFotoPasajero">
+        <input type="file" name="foto" accept="image/*" required onchange="vistaPreviaFotoPasajero(event)">
+        <img id="previewFotoPasajero" src="" alt="Vista previa" style="max-width: 150px; margin-top: 10px; display: none;">
+        <button type="submit" class="btn-accion">Actualizar fotografía</button>
+      </form>
+    </div>
+  </section>
+  </main>
+
+
+  <script>
+    //===================== CONFIGURACIÓN INICIAL =====================//
+
+    //Verificar sesión del pasajero al cargar la página
+    document.addEventListener("DOMContentLoaded", () => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario || usuario.rol !== "pasajero") {
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Mostrar datos del pasajero en el header
+      const perfilDiv = document.getElementById("perfilPasajero");
+      perfilDiv.innerHTML = `
+        <h3>Bienvenido, ${usuario.nombre} ${usuario.apellido}</h3>
+        <img src="../img/${usuario.foto}" alt="Foto de perfil" style="width:50px; border-radius:50%;">
+        <p>${usuario.email}</p>
+      `;
+
+      document.getElementById("btnCerrarSesion").addEventListener("click", cerrarSesion);
+
+      cargarReservas();
+      cargarPerfil();
+      cargarRidesPublicos();
+
+      const formPerfil = document.getElementById("formPerfil");
+      formPerfil.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(formPerfil);
+        formData.append("usuario_id", usuario.id);
+
+        const response = await fetch("../php/editar_chofer.php", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        alert(data.message);
+
+        if (data.success) {
+          usuario.nombre = formPerfil.nombre.value;
+          usuario.email = formPerfil.correo.value;
+          usuario.telefono = formPerfil.telefono.value;
+          localStorage.setItem("usuario", JSON.stringify(usuario));
+        }
+      });
+    });
+
+    //Cerrar sesión del pasajero
+    function cerrarSesion() {
+      localStorage.removeItem("usuario");
+      window.location.href = "menu_rides.html";
+    }
+
+
+
+    //===================== BÚSQUEDA Y LISTADO DE RIDES =====================//
+    //Almacenar rides públicos cargados
+    let ridesPublicos = [];
+
+    //Cargar rides públicos desde el servidor
+    async function cargarRidesPublicos() {
+      const response = await fetch("../php/obtener_rides_publicos.php");
+      const data = await response.json();
+      if (data.success) {
+        ridesPublicos = data.rides.sort((a, b) => {
+          const da = new Date(`${a.fecha}T${a.hora}`);
+          const db = new Date(`${b.fecha}T${b.hora}`);
+          return da - db;
+        });
+        mostrarRides(ridesPublicos);
+      }
+    }
+
+    //Mostrar lista de rides públicos
+    function mostrarRides(lista) {
+      const contenedor = document.getElementById("listaRidesPublicos");
+      contenedor.innerHTML = "";
+
+      lista.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "ride-card";
+        card.innerHTML = `
+          <strong>${r.nombre}</strong><br>
+          ${r.lugar_salida} → ${r.lugar_llegada}<br>
+          Fecha: ${r.fecha} | Hora: ${r.hora}<br>
+          Vehículo: ${r.vehiculo_marca} ${r.vehiculo_modelo} (${r.vehiculo_anio})<br>
+          Espacios: ${r.cantidad_espacios} | Costo: ₡${parseFloat(r.costo).toFixed(2)}<br>
+          <button onclick="reservarRide(${r.id})">Reservar</button>
+        `;
+        contenedor.appendChild(card);
+      });
+    }
+
+    //Filtrar rides según origen y destino ingresados
+    function filtrarRides() {
+      const origen = document.getElementById("origen").value.toLowerCase();
+      const destino = document.getElementById("destino").value.toLowerCase();
+
+      const filtrados = ridesPublicos.filter(r =>
+        r.lugar_salida.toLowerCase().includes(origen) &&
+        r.lugar_llegada.toLowerCase().includes(destino)
+      );
+
+      mostrarRides(filtrados);
+    }
+
+    //Ordenar rides según campo y dirección seleccionados
+    function ordenarRides() {
+      const campo = document.getElementById("ordenarPor").value;
+      const direccion = document.getElementById("ordenDireccion").value;
+
+      const ordenados = [...ridesPublicos].sort((a, b) => {
+        if (a[campo] < b[campo]) return direccion === "asc" ? -1 : 1;
+        if (a[campo] > b[campo]) return direccion === "asc" ? 1 : -1;
+        return 0;
+      });
+
+      mostrarRides(ordenados);
+    }
+
+    //Reservar ride público. Toma el ID del ride como parámetro 
+    async function reservarRide(ride_id) {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const formData = new FormData();
+      formData.append("ride_id", ride_id);
+      formData.append("usuario_id", usuario.id);
+
+      const response = await fetch("../php/crear_reserva.php", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.success) {
+        cargarReservas(); 
+      }
+    }
+
+
+
+
+    //===================== RESERVAS DEL PASAJERO =====================//
+    async function cargarReservas() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const response = await fetch("../php/obtener_reservas.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario_id: usuario.id })
+      });
+
+      const data = await response.json();
+      const tbody = document.querySelector("#tablaReservas tbody");
+
+      if (data.success && data.reservas.length > 0) {
+        tbody.innerHTML = "";
+        data.reservas.forEach(r => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `
+            <td>${r.nombre}</td>
+            <td>${r.lugar_salida} → ${r.lugar_llegada}</td>
+            <td>${r.fecha}</td>
+            <td>${r.hora}</td>
+            <td>${r.estado}</td>
+            <td>
+              ${r.estado !== "rechazada" && r.estado !== "cancelada"
+                ? `<button onclick="cancelarReserva(${r.reserva_id})">Cancelar</button>`
+                : ""}
+            </td>
+          `;
+          tbody.appendChild(fila);
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="6"><em>No tienes reservas registradas.</em></td></tr>`;
+      }
+    }
+
+    //Cancelar reserva del pasajero. Toma el ID de la reserva como parámetro
+    async function cancelarReserva(id) {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!confirm("¿Estás seguro de que deseas cancelar esta reserva?")) return;
+
+      const response = await fetch("../php/cancelar_reserva.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, pasajero_id: usuario.id })
+      });
+
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.success) {
+        cargarReservas();
+      }
+    }
+
+
+
+
+    //===================== PERFIL DEL PASAJERO =====================//
+    async function cargarPerfil() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const form = document.getElementById("formPerfil");
+      form.nombre.value = usuario.nombre || "";
+      form.correo.value = usuario.email || "";
+      form.telefono.value = usuario.telefono || "";
+    }
+
+    //Mostrar datos del pasajero en el perfil
+    function cargarPerfilVisual() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const contenedor = document.getElementById("perfilPasajeroPerfil");
+      contenedor.innerHTML = `
+        <img src="../img/usuarios/${usuario.foto || 'default.jpg'}" alt="Foto de perfil" style="width:70px; border-radius:50%; object-fit:cover;">
+        <div>
+          <h3>${usuario.nombre} ${usuario.apellido}</h3>
+          <p>${usuario.email}</p>
+          <p>Teléfono: ${usuario.telefono}</p>
+        </div>
+      `;
+    }
+
+
+
+
+    //===================== EDICIÓN DE DATOS Y PERFIL DEL PASAJERO =====================//
+    //Ocultar paneles al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      ['panelEditarDatos','panelContrasena','panelFoto'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){
+          el.style.display='none';
+          el.classList.remove('panel-visible');
+          el.classList.add('panel-oculto');
+        }
+      });
+    });
+
+    //Funciones para mostrar y ocultar paneles en el perfil de edición
+    function mostrarPanel(id){
+      const paneles=['panelEditarDatos','panelContrasena','panelFoto'];
+
+      // culta todos
+      paneles.forEach(p=>{
+        const el=document.getElementById(p);
+        if(el){
+          el.style.display='none';
+          el.classList.remove('panel-visible');
+          el.classList.add('panel-oculto');
+        }
+      });
+
+      // Muestra el solicitado y precarga según panel
+      const activo=document.getElementById(id);
+      if(!activo) return;
+      activo.style.display='block';
+      activo.classList.remove('panel-oculto');
+      activo.classList.add('panel-visible');
+
+      const usuario=JSON.parse(localStorage.getItem('usuario')) || {};
+
+      if(id==='panelEditarDatos'){
+        const f=document.getElementById('formEditarPasajero');
+        f.nombre.value   = usuario.nombre   || '';
+        f.apellido.value = usuario.apellido || '';
+        f.email.value    = usuario.email    || '';
+        f.telefono.value = usuario.telefono || '';
+      }else if(id==='panelContrasena'){
+        document.getElementById('formContrasenaPasajero').reset();
+      }else if(id==='panelFoto'){
+        document.getElementById('formFotoPasajero').reset();
+        const prev=document.getElementById('previewFotoPasajero');
+        if(prev){ prev.style.display='none'; }
+      }
+    }
+
+    function ocultarPanel(id){
+      const el=document.getElementById(id);
+      if(el){
+        el.style.display='none';
+        el.classList.remove('panel-visible');
+        el.classList.add('panel-oculto');
+      }
+    }
+    
+    //Editar datos del pasajero
+    document.getElementById("formEditarPasajero").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      formData.append("id", usuario.id);
+
+      const response = await fetch("../php/editar_chofer.php", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.success) {
+        usuario.nombre = form.nombre.value;
+        usuario.apellido = form.apellido.value;
+        usuario.email = form.email.value;
+        usuario.telefono = form.telefono.value;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        ocultarPanel("panelEditarDatos");
+        location.reload();
+      }
+    });
+
+    //Cambiar contraseña
+    document.getElementById("formContrasenaPasajero").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const actual = form.actual.value.trim();
+      const nueva = form.nueva.value.trim();
+      const confirmar = form.confirmar.value.trim();
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      if (nueva !== confirmar) {
+        alert("La nueva contraseña y su confirmación no coinciden.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("id", usuario.id);
+      formData.append("actual", actual);
+      formData.append("nueva", nueva);
+
+      const response = await fetch("../php/cambiar_contrasena.php", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.success) {
+        localStorage.removeItem("usuario");
+        window.location.href = "login.html";
+      }
+    });
+
+    //Cambiar foto
+    document.getElementById("formFotoPasajero").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      formData.append("id", usuario.id);
+
+      const response = await fetch("../php/cambiar_foto_chofer.php", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.success && data.foto) {
+        usuario.foto = data.foto;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        ocultarPanel("panelFoto");
+        location.reload();
+      }
+    });
+
+    //Vista previa de foto al editar
+    function vistaPreviaFotoPasajero(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById("previewFotoPasajero");
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = "";
+        preview.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
