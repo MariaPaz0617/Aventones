@@ -7,6 +7,7 @@
 
     {{-- Cargar CSS --}}
     @vite('resources/css/login.css')
+    
 </head>
 <body>
 
