@@ -60,15 +60,16 @@ class LoginController extends Controller
             }
 
             // Respuesta final (equivalente al login.php original)
-            return response()->json([
-                "success" => true,
-                "rol" => strtolower($user->rol),
-                "id" => $user->id,
-                "nombre" => $user->nombre,
-                "apellido" => $user->apellido,
-                "foto" => $user->foto,
-                "email" => $email
-            ]);
+        return response()->json([
+            "success" => true,
+            "rol" => strtolower($user->rol),   // puede ser: chofer, pasajero, administrador, superadministrador
+            "id" => $user->id,
+            "nombre" => $user->nombre,
+            "apellido" => $user->apellido,
+            "foto" => $user->foto,
+            "email" => $email
+        ]);
+
 
         } catch (\Throwable $e) {
             return response()->json([

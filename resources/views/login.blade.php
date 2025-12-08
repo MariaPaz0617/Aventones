@@ -59,9 +59,13 @@ document.getElementById("btnIngresar").addEventListener("click", async function(
             window.location.href = "{{ route('menu.chofer') }}";
         } else if (data.rol === "pasajero") {
             window.location.href = "{{ route('menu.pasajero') }}";
-        } else if (data.rol === "administrativo") {
+        } else if (data.rol === "administrador") {
             window.location.href = "{{ route('menu.admin') }}";
         }
+        else if (data.rol === "superadministrador") {
+            window.location.href = "{{ route('menu.superadmin') }}";
+        }
+
     } else {
         alert(data.message);
     }

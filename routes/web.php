@@ -28,11 +28,11 @@ Route::post('/vehiculo/editar', [EditarVehiculoController::class, 'update'])->na
 Route::delete('/ride/eliminar', [EliminarRideController::class, 'delete'])->name('ride.delete');
 Route::delete('/vehiculo/eliminar', [EliminarVehiculoController::class, 'delete'])->name('vehiculo.delete');
 
-
 // Menús según rol
 Route::get('/menu/chofer', function () { return view('menu_chofer'); })->name('menu.chofer');
 Route::get('/menu/pasajero', function () { return view('menu_pasajero'); })->name('menu.pasajero');
 Route::get('/menu/admin', function () { return view('menu_admin'); })->name('menu.admin');
+Route::get('/menu/superadmin', function () { return view('menu_superadmin'); })->name('menu.superadmin');
 
 // API Login
 Route::post('/api/login', [LoginController::class, 'login'])->name('login.api');
