@@ -44,7 +44,7 @@ class LoginController extends Controller
             }
 
             // Verificar estado
-            if ($user->estado !== "ACTIVA") {
+            if ($user->estado !== "ACTIVO") {
                 return response()->json([
                     "success" => false,
                     "message" => "Tu cuenta aún no está activa. Revisa tu correo."

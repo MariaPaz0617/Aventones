@@ -5,7 +5,7 @@
   <title>Menú Chofer - Rides App</title>
 
   {{-- CSS con asset() --}}
-  <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
+  @vite('resources/css/menu.css')
 </head>
 <body>
 
