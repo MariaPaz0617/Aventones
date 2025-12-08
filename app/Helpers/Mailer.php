@@ -31,7 +31,7 @@ class Mailer
             $mail->addAddress($email, $nombre);
 
             // Copia adicional al admin
-            $mail->addAddress('ugaldemariapaz4@gmail.com', 'Admin');
+            //$mail->addAddress('ugaldemariapaz4@gmail.com', 'Admin');
 
             // Configuración del correo
             $mail->isHTML(true);

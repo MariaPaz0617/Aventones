@@ -15,20 +15,24 @@ class ActivarCuentaController extends Controller
             return "Token inválido.";
         }
 
-        $usuario = DB::table('usuarios')->where('token_activacion', $token)->first();
+        // Buscar usuario por token
+        $usuario = DB::table('usuarios')->where('token', $token)->first();
 
         if (!$usuario) {
             return "Token no válido o usuario no encontrado.";
         }
 
-        // Activar cuenta
+        // Activar cuenta del usuario
         DB::table('usuarios')->where('id', $usuario->id)->update([
             'estado' => 'ACTIVO',
             'activo' => 1,
-            'token_activacion' => null,
-            'updated_at' => now()
+            'token' => null, // borrar token para que no pueda reutilizarse
+            'actualizado_en' => now()
         ]);
 
-        return view('cuenta_activada', ['mensaje' => 'Tu cuenta ha sido activada correctamente. Ya puedes iniciar sesión.']);
+        // Mostrar mensaje de éxito
+        return view('cuenta_activada', [
+            'mensaje' => 'Tu cuenta ha sido activada correctamente. Ya puedes iniciar sesión.'
+        ]);
     }
 }
