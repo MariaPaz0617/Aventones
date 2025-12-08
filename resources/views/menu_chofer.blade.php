@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Menú Chofer - Rides App</title>
-
-  {{-- CSS con asset() --}}
+  @vite('resources/js/app.js')
   @vite('resources/css/menu.css')
 </head>
 <body>
@@ -17,7 +16,7 @@
     <button onclick="cerrarSesion()" class="btn-salir">Cerrar sesión</button>
   </header>
 
-  <!-- Gestión de Vehículos -->
+  <!-- Gestión de Vehícuos -->
   <section class="seccion">
     <h2>Mis Vehículos</h2>
     <button class="btn-accion" onclick="abrirModal()">Registrar nuevo vehículo</button>
@@ -162,11 +161,9 @@
     <p>&copy; 2025 Aventones. Maria Paz Ugalde - Xavier Fernández.</p>
   </footer>
 
-  {{-- JS igual que en tu archivo original --}}
-  <script>
-      // TODO: tu JavaScript completo tal cual lo escribiste
-      // Solo reemplaza rutas "../php/" por rutas Laravel si es necesario
-  </script>
+
+
+
 
 </body>
 </html>

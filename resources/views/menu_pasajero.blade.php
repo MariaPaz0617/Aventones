@@ -2,20 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pasajero - Rides App</title>
+    <title>Menú Pasajero - Rides App</title>
 
-    {{-- Ruta a tu CSS usando asset --}}
-    <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
+    @vite('resources/js/app.js')
+    @vite('resources/css/menu.css')
 </head>
 <body>
+
 <header id="headerPasajero" class="header">
     <div id="perfilPasajero" class="perfil-chofer"></div>
 
-    {{-- Cerrar sesión con route() o URL --}}
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button id="btnCerrarSesion" class="btn-salir">Cerrar sesión</button>
-    </form>
+    <!-- Cerrar sesión igual que en chofer -->
+    <button onclick="cerrarSesion()" class="btn-salir">Cerrar sesión</button>
 </header>
 
 <main>
@@ -44,7 +42,6 @@
         <div id="listaRidesPublicos"></div>
     </section>
 
-    <!-- Sección: Mis Reservas -->
     <section id="seccionReservas" class="seccion">
         <h2>Mis Reservas</h2>
         <table id="tablaReservas" class="tabla">
@@ -62,7 +59,6 @@
         </table>
     </section>
 
-    <!-- PERFIL PASAJERO -->
     <section class="seccion">
         <h2>Mi Perfil</h2>
 
@@ -72,7 +68,7 @@
         <button class="btn-accion" onclick="mostrarPanel('panelContrasena')">Cambiar contraseña</button>
         <button class="btn-accion" onclick="mostrarPanel('panelFoto')">Cambiar fotografía</button>
 
-        <!-- Panel editar datos -->
+        <!-- Paneles -->
         <div id="panelEditarDatos" class="panel-oculto">
             <span class="cerrar" onclick="ocultarPanel('panelEditarDatos')">&times;</span>
 
@@ -81,44 +77,37 @@
                 <input type="text" name="apellido" placeholder="Apellido" required>
                 <input type="email" name="email" placeholder="Correo electrónico" required>
                 <input type="text" name="telefono" placeholder="Teléfono" required>
-
                 <button type="submit" class="btn-accion">Actualizar datos</button>
             </form>
         </div>
 
-        <!-- Panel cambiar contraseña -->
         <div id="panelContrasena" class="panel-oculto">
             <span class="cerrar" onclick="ocultarPanel('panelContrasena')">&times;</span>
-
             <form id="formContrasenaPasajero">
                 <input type="password" name="actual" placeholder="Contraseña actual" required>
                 <input type="password" name="nueva" placeholder="Nueva contraseña" required>
                 <input type="password" name="confirmar" placeholder="Confirmar nueva contraseña" required>
-
                 <button type="submit" class="btn-accion">Actualizar contraseña</button>
             </form>
         </div>
 
-        <!-- Panel cambiar fotografía -->
         <div id="panelFoto" class="panel-oculto">
             <span class="cerrar" onclick="ocultarPanel('panelFoto')">&times;</span>
-
             <form id="formFotoPasajero">
                 <input type="file" name="foto" accept="image/*" required onchange="vistaPreviaFotoPasajero(event)">
-                <img id="previewFotoPasajero" src="" alt="Vista previa"
-                     style="max-width: 150px; margin-top: 10px; display: none;">
-
+                <img id="previewFotoPasajero" style="max-width:150px; margin-top:10px; display:none;">
                 <button type="submit" class="btn-accion">Actualizar fotografía</button>
             </form>
         </div>
-    </section>
 
+    </section>
 </main>
 
-{{-- Tu JavaScript original intacto --}}
 <script>
-    /* ===================== TODO TU JS ORIGINAL AQUÍ ===================== */
-    {!! file_get_contents(public_path('js/menu_pasajero.js')) !!}
+function cerrarSesion() {
+    localStorage.removeItem("usuario");
+    window.location.href = "/login";
+}
 </script>
 
 </body>
