@@ -23,7 +23,7 @@
       <!-- FILTRO POR TIPO -->
       <label>Filtrar por tipo:</label>
       <select id="filtroTipo">
-        <option value="administrativo">Administrador</option>
+        <option value="administrador">Administrador</option>
         <option value="superadministrador">SuperAdmin</option>
         <option value="chofer">Chofer</option>
         <option value="pasajero">Pasajero</option>

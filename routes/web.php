@@ -53,3 +53,19 @@ Route::post('/superadmin/desactivar', [SuperAdminController::class, 'desactivarU
 // Activar usuario
 Route::post('/superadmin/activar', [SuperAdminController::class, 'activarUsuario']);
 
+
+use App\Http\Controllers\AdminController;
+
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.menu');
+
+Route::get('/admin/usuarios', [AdminController::class, 'obtenerUsuarios']);
+Route::post('/admin/activar', [AdminController::class, 'activar']);
+Route::post('/admin/desactivar', [AdminController::class, 'desactivar']);
+
+
+// Editar chofer
+Route::post('/chofer/editar', [EditarChoferController::class, 'update']);
+
+use App\Http\Controllers\CambiarContrasenaController;
+
+Route::post('/chofer/cambiar-password', [CambiarContrasenaController::class, 'update']);

@@ -2,26 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Menú Chofer - Rides App</title>
+
   @vite('resources/js/app.js')
   @vite('resources/css/menu.css')
+  @vite('resources/js/chofer.js')
 </head>
 <body>
 
   <!-- Encabezado -->
   <header class="header">
     <div id="perfilChofer" class="perfil-chofer"></div>
-
-    {{-- Aquí puedes usar una ruta Laravel en lugar de login.html --}}
     <button onclick="cerrarSesion()" class="btn-salir">Cerrar sesión</button>
   </header>
 
-  <!-- Gestión de Vehícuos -->
+  <!-- Gestión de Vehículos -->
   <section class="seccion">
     <h2>Mis Vehículos</h2>
     <button class="btn-accion" onclick="abrirModal()">Registrar nuevo vehículo</button>
 
-    <!-- Modal para registrar vehículo -->
+    <!-- Modal -->
     <div id="modalVehiculo" class="modal">
       <div class="modal-contenido">
         <span class="cerrar" onclick="cerrarModal()">&times;</span>
@@ -47,12 +48,11 @@
     <div id="listaVehiculos"></div>
   </section>
 
-  <!-- Gestión de Rides -->
+  <!-- Gestión Rides -->
   <section class="seccion">
     <h2>Mis Rides</h2>
     <button class="btn-accion" onclick="mostrarPanelRide()">Crear nuevo ride</button>
 
-    <!-- Panel embebido para crear/editar ride -->
     <div id="panelRide" class="panel-oculto">
       <span class="cerrar" onclick="ocultarPanelRide()">&times;</span>
       <h3 id="tituloModalRide">Crear nuevo ride</h3>
@@ -117,6 +117,7 @@
   <!-- Perfil -->
   <section class="seccion">
     <h2>Mi Perfil</h2>
+
     <div id="perfilChoferPerfil"></div>
 
     <button class="btn-accion" onclick="mostrarPanel('panelEditarDatos')">Editar datos</button>
@@ -129,13 +130,12 @@
       <form id="formEditarChofer">
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellido" placeholder="Apellido" required>
-        <input type="email" name="email" placeholder="Correo electrónico" required>
         <input type="text" name="telefono" placeholder="Teléfono" required>
         <button type="submit" class="btn-accion">Actualizar</button>
       </form>
     </div>
 
-    <!-- Panel cambiar contraseña -->
+    <!-- Panel contraseña -->
     <div id="panelContrasena" class="panel-oculto">
       <span class="cerrar" onclick="ocultarPanel('panelContrasena')">&times;</span>
       <form id="formContrasena">
@@ -146,7 +146,7 @@
       </form>
     </div>
 
-    <!-- Panel cambiar fotografía -->
+    <!-- Panel fotografía -->
     <div id="panelFoto" class="panel-oculto">
       <span class="cerrar" onclick="ocultarPanel('panelFoto')">&times;</span>
       <form id="formFotoChofer" enctype="multipart/form-data">
@@ -160,10 +160,6 @@
   <footer class="footer">
     <p>&copy; 2025 Aventones. Maria Paz Ugalde - Xavier Fernández.</p>
   </footer>
-
-
-
-
 
 </body>
 </html>
