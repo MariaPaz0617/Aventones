@@ -37,3 +37,19 @@ Route::get('/menu/superadmin', function () { return view('menu_superadmin'); })-
 // API Login
 Route::post('/api/login', [LoginController::class, 'login'])->name('login.api');
 Route::post('/api/register', [CrearUsuarioController::class, 'store'])->name('register.api');
+
+// SUPERADMIN PANEL
+use App\Http\Controllers\SuperAdminController;
+
+// Vista principal del menú de SuperAdministrador
+Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.menu');
+
+// Obtener usuarios filtrados por tipo (rol)
+Route::get('/superadmin/usuarios', [SuperAdminController::class, 'obtenerUsuarios']);
+// Crear un nuevo administrador
+Route::post('/superadmin/crear-admin', [SuperAdminController::class, 'crearAdministrador']);
+// Desactivar usuario
+Route::post('/superadmin/desactivar', [SuperAdminController::class, 'desactivarUsuario']);
+// Activar usuario
+Route::post('/superadmin/activar', [SuperAdminController::class, 'activarUsuario']);
+
