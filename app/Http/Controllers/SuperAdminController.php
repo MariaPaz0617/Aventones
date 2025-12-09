@@ -90,7 +90,7 @@ class SuperAdminController extends Controller
         DB::table('usuarios')->where('id', $request->id)->update([
             'estado' => 'ACTIVO',
             'activo' => 1,
-            'updated_at' => now()
+            'actualizado_en' => now() // ← ESTA ES LA COLUMNA CORRECTA
         ]);
 
         return response()->json([
@@ -98,6 +98,7 @@ class SuperAdminController extends Controller
             'message' => 'Usuario activado.'
         ]);
     }
+
 
     /**
      * Desactivar usuario
@@ -107,7 +108,7 @@ class SuperAdminController extends Controller
         DB::table('usuarios')->where('id', $request->id)->update([
             'estado' => 'INACTIVO',
             'activo' => 0,
-            'updated_at' => now()
+            'actualizado_en' => now() 
         ]);
 
         return response()->json([
@@ -115,4 +116,5 @@ class SuperAdminController extends Controller
             'message' => 'Usuario desactivado.'
         ]);
     }
+
 }
