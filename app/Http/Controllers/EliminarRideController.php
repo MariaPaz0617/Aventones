@@ -3,46 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Throwable;
+use App\Models\Ride;
 
 class EliminarRideController extends Controller
 {
-    private $conn;
-
-    public function __construct($conexion)
+    public function delete(Request $request)
     {
-        $this->conn = $conexion;
-        header("Content-Type: application/json");
-    }
+        $request->validate([
+            'id' => 'required|exists:rides,id'
+        ]);
 
-    public function eliminarRide(Request $request)
-    {
-        try {
-            $id = $request->input("id");
+        $ride = Ride::find($request->id);
 
-            if (!$id) {
-                return response()->json([
-                    "success" => false,
-                    "message" => "ID de ride no recibido."
-                ]);
-            }
+        $ride->activo = 0; // Desactivar
+        $ride->save();
 
-            // Marcar como inactivo
-            $sql = "UPDATE rides SET activo = 0 WHERE id = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
-
-            return response()->json([
-                "success" => true,
-                "message" => "Ride eliminado exitosamente."
-            ]);
-
-        } catch (Throwable $e) {
-            return response()->json([
-                "success" => false,
-                "message" => "Error: " . $e->getMessage()
-            ]);
-        }
+        return response()->json([
+            "success" => true,
+            "message" => "Ride eliminado correctamente"
+        ]);
     }
 }

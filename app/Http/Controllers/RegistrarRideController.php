@@ -26,6 +26,16 @@ class RegistrarRideController extends Controller
                 'cantidad_espacios' => 'required|integer|min:1',
             ]);
 
+            // Validar capacidad del vehículo
+            $vehiculo = \App\Models\Vehiculo::find($validated['vehiculo_id']);
+
+            if ($validated['cantidad_espacios'] > $vehiculo->capacidad_asientos) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La cantidad de espacios no puede superar la capacidad del vehículo.'
+                ]);
+            }
+
             // Crear Ride
             Ride::create([
                 'usuario_id' => $validated['usuario_id'],
@@ -51,4 +61,5 @@ class RegistrarRideController extends Controller
             ]);
         }
     }
+
 }

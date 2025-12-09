@@ -27,7 +27,7 @@ class EditarRideController extends Controller
                 'cantidad_espacios' => 'required|integer|min:1',
             ]);
 
-            // Buscar ride del usuario
+            // Verificar si el ride pertenece al usuario
             $ride = Ride::where('id', $validated['id'])
                         ->where('usuario_id', $validated['usuario_id'])
                         ->first();
@@ -36,6 +36,16 @@ class EditarRideController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Ride no encontrado o no pertenece al usuario.',
+                ]);
+            }
+
+            // Validar capacidad del vehículo
+            $vehiculo = \App\Models\Vehiculo::find($validated['vehiculo_id']);
+
+            if ($validated['cantidad_espacios'] > $vehiculo->capacidad_asientos) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La cantidad de espacios no puede superar la capacidad del vehículo.'
                 ]);
             }
 
@@ -63,4 +73,5 @@ class EditarRideController extends Controller
             ]);
         }
     }
+
 }

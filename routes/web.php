@@ -100,3 +100,17 @@ use App\Http\Controllers\ActualizarFotoChoferController;
 
 Route::post('/chofer/actualizar-foto', [ActualizarFotoChoferController::class, 'update']);
 
+
+
+
+/* ========================= RUTAS RIDES ========================= */
+use App\Http\Controllers\ListarRidesController;
+
+Route::post('/rides/listar', [ListarRidesController::class, 'listar']);
+
+
+Route::post('/rides/registrar', [RegistrarRideController::class, 'store'])->name('rides.store');
+
+Route::post('/rides/editar', [EditarRideController::class, 'update'])->name('rides.update');
+
+Route::delete('/rides/eliminar', [EliminarRideController::class, 'delete'])->name('rides.delete');

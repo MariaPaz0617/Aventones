@@ -31,7 +31,7 @@ class Ride extends Model
 
     public function vehiculo()
     {
-        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
+        return $this->belongsTo(\App\Models\Vehiculo::class, 'vehiculo_id');
     }
 
     public function reservas()

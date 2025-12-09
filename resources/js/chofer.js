@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarPerfilChofer();
     llenarPerfilEnSeccionPrincipal();
     cargarVehiculos();
-    //cargarRidesChofer(); // pendiente
+    cargarRides();
     //CARGAR RESRVAS PENDIENTES - pendiente
 });
 
@@ -486,7 +486,258 @@ window.onclick = function(e) {
     }
 };
 
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const selectVehiculo = document.querySelector("#formRide select[name=vehiculo_id]");
+    if (selectVehiculo) {
+        selectVehiculo.addEventListener("change", function() {
+            const capacidad = this.selectedOptions[0].dataset.capacidad;
+            document.querySelector("#formRide [name=cantidad_espacios]").max = capacidad;
+        });
+    }
+});
+
+
+
+
+
+
+
+//FUINCIN PARA CARGAR VEHÍCULOS EN EL SELECT DEL FORMULARIO DE RIDE
+async function cargarVehiculosEnSelect() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const select = document.querySelector("#formRide select[name=vehiculo_id]");
+
+    const response = await fetch("/vehiculos/listar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ usuario_id: usuario.id })
+    });
+
+    const data = await response.json();
+
+    select.innerHTML = `<option value="">Seleccione un vehículo</option>`;
+
+    if (data.success) {
+        data.vehiculos.forEach(v => {
+            const op = document.createElement("option");
+            op.value = v.id;
+            op.textContent = `${v.marca} ${v.modelo} (${v.año}) - ${v.capacidad_asientos} asientos`;
+            op.dataset.capacidad = v.capacidad_asientos;
+            select.appendChild(op);
+        });
+    }
+}
+
+
+//FUNCION PARA REGISTRAR RIDE CON EL CHOFER LOGUEADO 
+document.getElementById("formRide").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = document.getElementById("formRide");
+
+    if (form.dataset.editar) {
+        actualizarRide(e);   //MODO EDICIÓN
+    } else {
+        registrarRide(e);    //MODO REGISTRO
+    }
+});
+
+
+//FUNCION PARA REGISTRAR RIDE
+async function registrarRide(e) {
+    e.preventDefault();
+
+    // Obtener datos del formulario
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const form = document.getElementById("formRide");
+    const formData = new FormData(form);
+
+    // Agregar ID del chofer
+    formData.append("usuario_id", usuario.id);
+
+    // Enviar solicitud de registro
+    const response = await fetch("/rides/registrar", {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content },
+        body: formData
+    });
+
+    // Procesar respuesta
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.success) {
+        ocultarPanelRide();
+        form.reset();
+        cargarRides();
+    }
+}
+
+
+//CARGAR RIDES DEL CHOFER LOGUEADO
+async function cargarRides() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const tabla = document.querySelector("#tablaRides tbody");
+    const mensaje = document.getElementById("mensajeSinRides");
+
+    // Solicitar rides al servidor
+    const response = await fetch("/rides/listar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ usuario_id: usuario.id })
+    });
+
+    const data = await response.json();
+
+    tabla.innerHTML = "";
+
+    // Mostrar mensaje si no hay rides
+    if (!data.success || data.rides.length === 0) {
+        mensaje.style.display = "block";
+        return;
+    }
+
+    // Ocultar mensaje de "sin rides"
+    mensaje.style.display = "none";
+
+    // Llenar tabla con rides
+    data.rides.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${r.nombre}</td>
+            <td>${r.lugar_salida}</td>
+            <td>${r.lugar_llegada}</td>
+            <td>${r.fecha}</td>
+            <td>${r.hora}</td>
+            <td>₡${parseFloat(r.costo).toFixed(2)}</td>
+            <td>${r.cantidad_espacios}</td>
+            <td>${r.vehiculo.marca} ${r.vehiculo.modelo}</td>
+
+            <td>
+                <button class="btn-editar" onclick='prepararEdicionRide(${JSON.stringify(r)})'>Editar</button>
+                <button class="btn-eliminar" onclick='eliminarRide(${r.id})'>Eliminar</button>
+            </td>
+        `;
+        tabla.appendChild(tr);
+    });
+}
+
+
+
+//EDITAR RIDE DEL CHOFER LOGUEADO
+function prepararEdicionRide(r) {
+    const form = document.getElementById("formRide");
+
+    mostrarPanelRide();
+    form.reset();
+
+    cargarVehiculosEnSelect().then(() => {
+        form.nombre.value = r.nombre;
+        form.lugar_salida.value = r.lugar_salida;
+        form.lugar_llegada.value = r.lugar_llegada;
+        form.fecha.value = r.fecha;
+        form.hora.value = r.hora;
+        form.costo.value = r.costo;
+        form.cantidad_espacios.value = r.cantidad_espacios;
+        form.vehiculo_id.value = r.vehiculo_id;
+
+        form.dataset.editar = r.id;
+
+        document.getElementById("tituloModalRide").textContent = "Editar ride";
+        document.getElementById("botonModalRide").textContent = "Actualizar ride";
+    });
+}
+
+
+//ELIMINAR UN RIDE DEL CHOFER LOGUEADO
+async function eliminarRide(id) {
+    if (!confirm("¿Deseas eliminar este ride?")) return;
+
+    const response = await fetch("/rides/eliminar", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.success) cargarRides();
+}
+
+//ACTUALIZAR RIDE DEL CHOFER LOGUEADO
+async function actualizarRide(e) {
+    e.preventDefault();
+
+    // Obtener datos del formulario
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const form = document.getElementById("formRide");
+    const id = form.dataset.editar;
+
+    // Crear FormData
+    const formData = new FormData(form);
+    formData.append("id", id);
+    formData.append("usuario_id", usuario.id);
+
+    const response = await fetch("/rides/editar", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: formData
+    });
+
+    // Procesar respuesta
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.success) {
+        ocultarPanelRide();
+        form.reset();
+        delete form.dataset.editar; 
+        cargarRides();
+    }
+}
+
+
+// Abrir el panel para crear Ride
+function mostrarPanelRide() {
+    const form = document.getElementById("formRide");
+    form.reset();
+    delete form.dataset.editar;
+
+    document.getElementById("tituloModalRide").textContent = "Crear nuevo ride";
+    document.getElementById("botonModalRide").textContent = "Guardar ride";
+
+    document.getElementById("panelRide").classList.remove("panel-oculto");
+
+    cargarVehiculosEnSelect();
+}
+
+
+// Cerrar panel de Ride
+function ocultarPanelRide() {
+    const panel = document.getElementById("panelRide");
+    panel.classList.remove("panel-visible");
+    panel.classList.add("panel-oculto");
+}
+
 // Exponer funciones al HTML para su uso en los botones
+window.mostrarPanelRide = mostrarPanelRide;
+window.ocultarPanelRide = ocultarPanelRide;
 window.cerrarSesion = cerrarSesion;
 window.registrarVehiculo = registrarVehiculo;
 window.prepararEdicionVehiculo = prepararEdicionVehiculo;
@@ -494,4 +745,7 @@ window.eliminarVehiculo = eliminarVehiculo;
 window.actualizarVehiculo = actualizarVehiculo;
 window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
-
+window.prepararEdicionRide = prepararEdicionRide;
+window.eliminarRide = eliminarRide;
+window.actualizarRide = actualizarRide;
+window.cargarRides = cargarRides;
