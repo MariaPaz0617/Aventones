@@ -37,8 +37,9 @@
           <input type="number" name="capacidad_asientos" placeholder="Capacidad de asientos" min="1" required>
 
           <div id="campoFoto">
-            <input type="file" name="foto" accept="image/*">
+              <input type="file" name="foto" accept="image/*" required>
           </div>
+
 
           <button type="submit" id="botonModalVehiculo" class="btn-accion">Guardar vehículo</button>
         </form>

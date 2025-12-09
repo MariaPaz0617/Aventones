@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class EliminarVehiculoController extends Controller
 {
@@ -11,12 +12,16 @@ class EliminarVehiculoController extends Controller
     {
         try {
             $request->validate([
-                'id' => 'required|integer'
+                'id' => 'required|integer|exists:vehiculos,id'
             ]);
 
-            $vehiculo_id = $request->input('id');
+            $vehiculo = Vehiculo::find($request->id);
 
-            DB::table('vehiculos')->where('id', $vehiculo_id)->delete();
+            if ($vehiculo->foto && Storage::disk('public')->exists($vehiculo->foto)) {
+                Storage::disk('public')->delete($vehiculo->foto);
+            }
+
+            $vehiculo->delete();
 
             return response()->json([
                 "success" => true,
@@ -24,10 +29,13 @@ class EliminarVehiculoController extends Controller
             ]);
 
         } catch (\Throwable $e) {
+
             return response()->json([
                 "success" => false,
                 "message" => "Error: " . $e->getMessage()
             ]);
+
         }
     }
+
 }

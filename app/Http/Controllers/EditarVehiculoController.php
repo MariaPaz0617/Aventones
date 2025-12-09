@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Vehiculo;
 
@@ -13,7 +14,7 @@ class EditarVehiculoController extends Controller
     public function update(Request $request)
     {
         try {
-            // Validación
+
             $validated = $request->validate([
                 'id' => 'required|exists:vehiculos,id',
                 'placa' => 'required|string|max:20',
@@ -21,37 +22,22 @@ class EditarVehiculoController extends Controller
                 'marca' => 'required|string|max:100',
                 'modelo' => 'required|string|max:100',
                 'año' => 'required|integer|min:1900|max:'.(date('Y')+1),
-                'capacidad_asientos' => 'required|integer|min:1',
-                'color_modificado' => 'nullable|in:0,1',
-                'foto_actual' => 'nullable|string',
-                'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:4096'
+                'capacidad_asientos' => 'required|integer|min:1|max:7',
+                'foto' => 'nullable|image|max:4096',
             ]);
 
-            // Buscar vehículo
             $vehiculo = Vehiculo::find($validated['id']);
 
-            if (!$vehiculo) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vehículo no encontrado.'
-                ]);
-            }
+            $rutaFoto = $vehiculo->foto;
 
-            // Si cambia el color → debe subir nueva imagen
-            if ($request->color_modificado == "1" && !$request->hasFile('foto')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Debes subir una nueva imagen si modificas el color.'
-                ]);
-            }
-
-            // Procesar imagen
-            $foto = $request->foto_actual; // mantener actual si no cambia
-
+            // Si se sube nueva foto → borrar la anterior
             if ($request->hasFile('foto')) {
-                $nombreArchivo = uniqid("vehiculo_") . "." . $request->file('foto')->extension();
-                $request->file('foto')->move(public_path('img'), $nombreArchivo);
-                $foto = $nombreArchivo;
+
+                if ($rutaFoto && Storage::disk('public')->exists($rutaFoto)) {
+                    Storage::disk('public')->delete($rutaFoto);
+                }
+
+                $rutaFoto = $request->file('foto')->store('vehiculos','public');
             }
 
             // Actualizar datos
@@ -62,19 +48,22 @@ class EditarVehiculoController extends Controller
                 'modelo' => $validated['modelo'],
                 'año' => $validated['año'],
                 'capacidad_asientos' => $validated['capacidad_asientos'],
-                'foto' => $foto
+                'foto' => $rutaFoto
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Vehículo actualizado correctamente.'
+                'message' => 'Vehículo actualizado correctamente',
             ]);
 
         } catch (\Throwable $e) {
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ]);
+
         }
     }
+
 }

@@ -28,11 +28,33 @@ Route::post('/vehiculo/editar', [EditarVehiculoController::class, 'update'])->na
 Route::delete('/ride/eliminar', [EliminarRideController::class, 'delete'])->name('ride.delete');
 Route::delete('/vehiculo/eliminar', [EliminarVehiculoController::class, 'delete'])->name('vehiculo.delete');
 
+
+
+// Activar cuenta
+Route::get('/activar-cuenta', [ActivarCuentaController::class, 'activar']) ->name('activar.cuenta');
+
+// Editar chofer
+Route::post('/chofer/editar', [EditarChoferController::class, 'update']) ->name('chofer.update');
+
+
+// Crear vehículo
+Route::post('/vehiculos/registrar', [RegistrarVehiculoController::class, 'store']) ->name('vehiculo.store');
+Route::post('/vehiculo/editar', [EditarVehiculoController::class, 'update']) ->name('vehiculo.update');
+Route::delete('/vehiculo/eliminar', [EliminarVehiculoController::class, 'delete'])->name('vehiculo.delete');
+Route::post('/vehiculos/listar', [RegistrarVehiculoController::class, 'listar']) ->name('vehiculo.listar');
+
+// Crear ride
+Route::post('/rides/registrar', [RegistrarRideController::class, 'store']) ->name('rides.store');
+Route::post('/ride/editar', [EditarRideController::class, 'update']) ->name('ride.update');
+Route::delete('/ride/eliminar', [EliminarRideController::class, 'delete']) ->name('ride.delete');
+
 // Menús según rol
-Route::get('/menu/chofer', function () { return view('menu_chofer'); })->name('menu.chofer');
-Route::get('/menu/pasajero', function () { return view('menu_pasajero'); })->name('menu.pasajero');
-Route::get('/menu/admin', function () { return view('menu_admin'); })->name('menu.admin');
-Route::get('/menu/superadmin', function () { return view('menu_superadmin'); })->name('menu.superadmin');
+Route::get('/menu/chofer', fn() => view('menu_chofer')) ->name('menu.chofer');
+Route::get('/menu/pasajero', fn() => view('menu_pasajero')) ->name('menu.pasajero');
+Route::get('/menu/admin', fn() => view('menu_admin')) ->name('menu.admin');
+Route::get('/menu/superadmin', fn() => view('menu_superadmin')) ->name('menu.superadmin');
+
+
 
 // API Login
 Route::post('/api/login', [LoginController::class, 'login'])->name('login.api');
@@ -66,6 +88,15 @@ Route::post('/admin/desactivar', [AdminController::class, 'desactivar']);
 // Editar chofer
 Route::post('/chofer/editar', [EditarChoferController::class, 'update']);
 
+
+
 use App\Http\Controllers\CambiarContrasenaController;
 
-Route::post('/chofer/cambiar-password', [CambiarContrasenaController::class, 'update']);
+Route::post('/chofer/actualizar-contrasena', [CambiarContrasenaController::class, 'update']);
+
+
+
+use App\Http\Controllers\ActualizarFotoChoferController;
+
+Route::post('/chofer/actualizar-foto', [ActualizarFotoChoferController::class, 'update']);
+

@@ -120,8 +120,28 @@ body {
   border-radius: 8px;
 }
 
+.vehiculo-foto {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
 
+#listaVehiculos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
 
+.vehiculo-card {
+  animation: fadeIn 0.3s linear;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 
 
@@ -212,7 +232,7 @@ body {
 }
 
 #campoFoto {
-  display: none;
+  display: block;
 }
 
 .btn-editar, .btn-eliminar {
