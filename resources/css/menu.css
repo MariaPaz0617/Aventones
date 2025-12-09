@@ -326,3 +326,7 @@ body {
   color: #666;
   cursor: not-allowed;
 }
+
+.fila-inactiva {
+    opacity: 0.5;
+}

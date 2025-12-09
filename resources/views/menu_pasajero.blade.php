@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Menú Pasajero - Rides App</title>
 
     @vite('resources/js/app.js')
     @vite('resources/css/menu.css')
+    @vite('resources/js/pasajero.js')
 </head>
 <body>
 
@@ -75,10 +77,10 @@
             <form id="formEditarPasajero">
                 <input type="text" name="nombre" placeholder="Nombre" required>
                 <input type="text" name="apellido" placeholder="Apellido" required>
-                <input type="email" name="email" placeholder="Correo electrónico" required>
                 <input type="text" name="telefono" placeholder="Teléfono" required>
                 <button type="submit" class="btn-accion">Actualizar datos</button>
             </form>
+
         </div>
 
         <div id="panelContrasena" class="panel-oculto">

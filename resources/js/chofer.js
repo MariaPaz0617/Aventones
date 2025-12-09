@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     llenarPerfilEnSeccionPrincipal();
     cargarVehiculos();
     cargarRides();
+    cargarReservasChofer();
     //CARGAR RESRVAS PENDIENTES - pendiente
 });
 
@@ -735,6 +736,84 @@ function ocultarPanelRide() {
     panel.classList.add("panel-oculto");
 }
 
+
+
+
+//CARGAR RESERVAS PENDIENTES DEL CHOFER LOGUEADO
+async function cargarReservasChofer() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const tbody = document.querySelector("#tablaReservasChofer tbody");
+
+    const response = await fetch("/chofer/reservas", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ chofer_id: usuario.id })
+    });
+
+    const data = await response.json();
+    tbody.innerHTML = "";
+
+    data.reservas.forEach(r => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${r.pasajero.nombre} ${r.pasajero.apellido}</td>
+                <td>${r.ride.lugar_salida} → ${r.ride.lugar_llegada}</td>
+                <td>${r.ride.fecha}</td>
+                <td>${r.ride.hora}</td>
+                <td>${r.estado}</td>
+                <td>
+                    ${r.estado === "PENDIENTE" ?
+                        `<button onclick="aceptarReserva(${r.id})">Aceptar</button>
+                         <button onclick="rechazarReserva(${r.id})">Rechazar</button>` 
+                        : ''}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+
+//FUNCIONES PARA ACEPTAR Y RECHAZAR RESERVAS
+async function aceptarReserva(id) {
+    const response = await fetch("/chofer/reserva/aceptar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.success) cargarReservasChofer();
+}
+
+//FUNCION RECHAZAR RESERVA
+async function rechazarReserva(id) {
+    const response = await fetch("/chofer/reserva/rechazar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+        },
+        body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.success) {
+        cargarReservasChofer();
+        cargarRides(); // actualiza espacios del ride
+    }
+}
+
+
 // Exponer funciones al HTML para su uso en los botones
 window.mostrarPanelRide = mostrarPanelRide;
 window.ocultarPanelRide = ocultarPanelRide;
@@ -749,3 +828,5 @@ window.prepararEdicionRide = prepararEdicionRide;
 window.eliminarRide = eliminarRide;
 window.actualizarRide = actualizarRide;
 window.cargarRides = cargarRides;
+window.aceptarReserva = aceptarReserva;
+window.rechazarReserva = rechazarReserva;

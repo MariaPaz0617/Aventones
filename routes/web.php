@@ -114,3 +114,45 @@ Route::post('/rides/registrar', [RegistrarRideController::class, 'store'])->name
 Route::post('/rides/editar', [EditarRideController::class, 'update'])->name('rides.update');
 
 Route::delete('/rides/eliminar', [EliminarRideController::class, 'delete'])->name('rides.delete');
+
+
+
+use App\Http\Controllers\EditarPasajeroController;
+use App\Http\Controllers\ActualizarFotoPasajeroController;
+// PASAJERO - EDITAR DATOS
+Route::post('/pasajero/editar', [EditarPasajeroController::class, 'update']);
+
+// PASAJERO - ACTUALIZAR CONTRASEÑA
+Route::post('/pasajero/actualizar-contrasena', [CambiarContrasenaController::class, 'update']);
+
+// PASAJERO - ACTUALIZAR FOTO
+Route::post('/pasajero/actualizar-foto', [ActualizarFotoPasajeroController::class, 'update']);
+
+
+use App\Http\Controllers\RidePublicController;
+use App\Http\Controllers\ReservaPasajeroController;
+use App\Http\Controllers\MisReservasPasajeroController;
+
+Route::post('/rides/publicos', [RidePublicController::class, 'listar']);
+
+Route::post('/reservas/crear', [ReservaPasajeroController::class, 'reservar']);
+
+Route::post('/reservas/mias', [MisReservasPasajeroController::class, 'listar']);
+Route::post('/reservas/cancelar', [ReservaPasajeroController::class, 'cancelar']);
+
+
+use App\Http\Controllers\ReservaChoferController;
+Route::post('/chofer/reservas', [ReservaChoferController::class, 'listar']);
+Route::post('/chofer/reserva/aceptar', [ReservaPasajeroController::class, 'aceptar']);
+Route::post('/chofer/reserva/rechazar', [ReservaPasajeroController::class, 'rechazar']);
+
+
+
+
+// Página principal
+Route::get('/', function () {
+    return view('home');
+});
+
+// API pública con filtro
+Route::post('/rides/publicos', [RidePublicController::class, 'listar']);

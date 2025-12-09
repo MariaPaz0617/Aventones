@@ -29,6 +29,8 @@ class Reserva extends Model
     {
         return $this->belongsTo(Usuario::class, 'pasajero_id');
     }
+
+    
 }
 
 
