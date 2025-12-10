@@ -88,3 +88,5 @@ function mostrarRidesPublicos(rides) {
 
     cont.innerHTML = html;
 }
+
+window.filtrarRidesPublicos = filtrarRidesPublicos;

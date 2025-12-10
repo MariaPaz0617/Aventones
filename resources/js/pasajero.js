@@ -193,9 +193,7 @@ async function actualizarFotoPasajero(e) {
     }
 }
 
-/* ============================================================
-   8. ACTUALIZAR CONTRASEÑA (USA EL MISMO CONTROLADOR)
-============================================================ */
+//ACTUALIZAR CONTRASEÑA SE USA EL MISMO FORMATO QUE EN ADMIN.JS
 document.getElementById("formContrasenaPasajero")
     .addEventListener("submit", actualizarContrasenaPasajero);
 
