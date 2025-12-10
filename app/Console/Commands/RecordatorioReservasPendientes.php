@@ -10,17 +10,20 @@ use Illuminate\Support\Facades\Mail;
 class RecordatorioReservasPendientes extends Command
 {
     protected $signature = 'reservas:recordatorio';
-    protected $description = 'Enviar recordatorios de reservas pendientes con más de 20 segundos sin respuesta';
+    protected $description = 'Enviar recordatorios de reservas pendientes que lleven X minutos sin respuesta';
 
     public function handle()
     {
         $this->info("Buscando reservas pendientes sin gestionar...");
 
-        // 1. Buscar reservas pendientes > 20 segundos
+        // Tiempo máximo sin respuesta (puedes cambiarlo)
+        $minutos = 1;
+
+        // Buscar reservas PENDIENTES con más de X minutos sin respuesta
         $reservas = Reserva::where('estado', 'PENDIENTE')
-            ->where('created_at', '<=', now()->subSeconds(20))
+            ->where('fecha_solicitud', '<=', now()->subMinutes($minutos))
             ->where('notificado', 0)
-            ->with('ride.usuario') // traer chofer
+            ->with('ride.usuario') // extraer chofer
             ->get();
 
         if ($reservas->isEmpty()) {
@@ -28,7 +31,6 @@ class RecordatorioReservasPendientes extends Command
             return;
         }
 
-        // 2. Enviar correos
         foreach ($reservas as $reserva) {
 
             $chofer = $reserva->ride->usuario;
@@ -37,14 +39,14 @@ class RecordatorioReservasPendientes extends Command
                 continue;
             }
 
-            // Enviar correo
+            // Enviar el correo
             Mail::to($chofer->email)->send(new RecordatorioReservaMail($reserva));
 
-            // Marcar notificado
+            // Marcar como notificado
             $reserva->notificado = 1;
             $reserva->save();
 
-            $this->info("Notificación enviada al chofer: {$chofer->email}");
+            $this->info("Correo enviado a: {$chofer->email}");
         }
     }
 }
